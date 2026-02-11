@@ -4,6 +4,7 @@
 #include <iostream>
 #include <queue>
 #include <functional>
+using namespace std;
 
 // Forward declarations
 template<typename T>
@@ -150,8 +151,8 @@ private:
         x->right = y;
         y->left = T2;
         
-        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
-        x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
+        y->height = max(getHeight(y->left), getHeight(y->right)) + 1;
+        x->height = max(getHeight(x->left), getHeight(x->right)) + 1;
         
         return x;
     }
@@ -163,8 +164,8 @@ private:
         y->left = x;
         x->right = T2;
         
-        x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
-        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
+        x->height = max(getHeight(x->left), getHeight(x->right)) + 1;
+        y->height = max(getHeight(y->left), getHeight(y->right)) + 1;
         
         return y;
     }
@@ -184,7 +185,7 @@ private:
             return node;
         }
         
-        node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
+        node->height = 1 + max(getHeight(node->left), getHeight(node->right));
         
         int balance = getBalance(node);
         
@@ -260,10 +261,10 @@ public:
 };
 
 // Priority Queue wrapper using STL (for reservation queues)
-template<typename T, typename Compare = std::less<T>>
+template<typename T, typename Compare = less<T>>
 class PriorityQueue {
 private:
-    std::priority_queue<T, std::vector<T>, Compare> pq;
+    priority_queue<T, vector<T>, Compare> pq;
     
 public:
     void push(const T& item) {

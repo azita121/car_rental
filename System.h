@@ -13,6 +13,8 @@
 #include <queue>
 #include <sstream>
 #include <fstream>
+using namespace std;
+
 
 // Comparator for reservation pointers in priority queue (earliest start date first)
 struct ReservationPtrCompare {
@@ -24,7 +26,7 @@ struct ReservationPtrCompare {
 class System {
 private:
     // Data Structures
-    AVLTree<std::string, User*> userMap; // AVL Tree for fast username lookup
+    AVLTree<string, User*> userMap; // AVL Tree for fast username lookup
     LinkedList<User*> users; // Linked List for all users
     LinkedList<Vehicle*> vehicles; // Linked List for all vehicles
     LinkedList<Reservation*> reservations; // Linked List for all reservations
@@ -32,10 +34,10 @@ private:
     LinkedList<MaintenanceRecord*> maintenanceRecords; // Linked List for maintenance records
     
     // Priority Queue for reservation queues per vehicle (earliest reservation first)
-    AVLTree<std::string, PriorityQueue<Reservation*, ReservationPtrCompare>> reservationQueues;
+    AVLTree<string, PriorityQueue<Reservation*, ReservationPtrCompare>> reservationQueues;
     
     // Queue for rental processing (pickup and return)
-    std::queue<std::string> rentalProcessingQueue;
+    queue<string> rentalProcessingQueue;
     
     // Current logged-in user
     User* currentUser;
@@ -53,16 +55,16 @@ private:
     // All authorization checks are enforced at the System method level, not in main.cpp
     
     // Helper methods
-    bool isVehicleAvailable(const std::string& vehicleId, const std::string& startDate, const std::string& endDate) const;
-    bool hasOverlappingReservation(const std::string& vehicleId, const std::string& startDate, const std::string& endDate) const;
-    bool hasOverlappingRental(const std::string& vehicleId, const std::string& startDate, const std::string& endDate) const;
-    Vehicle* findVehicle(const std::string& vehicleId) const;
-    Reservation* findReservation(const std::string& reservationId) const;
-    Rental* findRental(const std::string& rentalId) const;
-    std::string generateReservationId();
-    std::string generateRentalId();
-    std::string generateMaintenanceRecordId();
-    void processReservationQueue(const std::string& vehicleId);
+    bool isVehicleAvailable(const string& vehicleId, const string& startDate, const string& endDate) const;
+    bool hasOverlappingReservation(const string& vehicleId, const string& startDate, const string& endDate) const;
+    bool hasOverlappingRental(const string& vehicleId, const string& startDate, const string& endDate) const;
+    Vehicle* findVehicle(const string& vehicleId) const;
+    Reservation* findReservation(const string& reservationId) const;
+    Rental* findRental(const string& rentalId) const;
+    string generateReservationId();
+    string generateRentalId();
+    string generateMaintenanceRecordId();
+    void processReservationQueue(const string& vehicleId);
     void clearAllData();
     
 public:
@@ -73,30 +75,30 @@ public:
     void ensureBootstrapUsers();
     
     // User Management
-    bool registerUser(const std::string& username, const std::string& password,
-                      const std::string& fullName, const std::string& email, UserType type);
-    User* login(const std::string& username, const std::string& password);
+    bool registerUser(const string& username, const string& password,
+                      const string& fullName, const string& email, UserType type);
+    User* login(const string& username, const string& password);
     void logout();
     User* getCurrentUser() const { return currentUser; }
     
     // Vehicle Management
-    bool addVehicle(const std::string& vehicleId, const std::string& brand,
-                    const std::string& model, int year, VehicleType type, double pricePerDay);
-    bool editVehicle(const std::string& vehicleId, const std::string& brand,
-                     const std::string& model, int year, VehicleType type, double pricePerDay);
+    bool addVehicle(const string& vehicleId, const string& brand,
+                    const string& model, int year, VehicleType type, double pricePerDay);
+    bool editVehicle(const string& vehicleId, const string& brand,
+                     const string& model, int year, VehicleType type, double pricePerDay);
     void displayAllVehicles() const;
-    void displayVehiclesByFilter(const std::string& brand, VehicleType type) const;
-    void displayVehicleDetails(const std::string& vehicleId) const;
+    void displayVehiclesByFilter(const string& brand, VehicleType type) const;
+    void displayVehicleDetails(const string& vehicleId) const;
     
     // Reservation Management
-    bool createReservation(const std::string& vehicleId, const std::string& startDate,
-                           const std::string& endDate);
+    bool createReservation(const string& vehicleId, const string& startDate,
+                           const string& endDate);
     void displayUserReservations() const;
-    bool extendRental(const std::string& rentalId, const std::string& newEndDate);
+    bool extendRental(const string& rentalId, const string& newEndDate);
     
     // Rental Management
-    bool convertReservationToRental(const std::string& reservationId);
-    bool returnVehicle(const std::string& rentalId, const std::string& returnDate);
+    bool convertReservationToRental(const string& reservationId);
+    bool returnVehicle(const string& rentalId, const string& returnDate);
     void displayUserRentals() const;
     
     // Payment Management
@@ -105,19 +107,19 @@ public:
     
     // Staff Operations
     void processReservationQueues();
-    void viewReservationQueue(const std::string& vehicleId);
-    void addMaintenanceRecord(const std::string& vehicleId, const std::string& description, double cost);
-    void setVehicleMaintenance(const std::string& vehicleId, bool inMaintenance);
+    void viewReservationQueue(const string& vehicleId);
+    void addMaintenanceRecord(const string& vehicleId, const string& description, double cost);
+    void setVehicleMaintenance(const string& vehicleId, bool inMaintenance);
     
     // Manager Operations
     void generateRevenueReport() const;
-    bool exportRevenueReportCSV(const std::string& filename) const;
-    void blockUser(const std::string& username);
-    void unblockUser(const std::string& username);
+    bool exportRevenueReportCSV(const string& filename) const;
+    void blockUser(const string& username);
+    void unblockUser(const string& username);
     
     // Backup & Restore
-    bool exportData(const std::string& filename) const;
-    bool importData(const std::string& filename);
+    bool exportData(const string& filename) const;
+    bool importData(const string& filename);
 };
 
 #endif // SYSTEM_H

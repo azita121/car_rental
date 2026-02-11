@@ -3,15 +3,17 @@
 #include "Config.h"
 #include <iostream>
 #include <iomanip>
+using namespace std;
 
-Rental::Rental(const std::string& rentalId, const std::string& username,
-               const std::string& vehicleId, const std::string& startDate,
-               const std::string& expectedEndDate, double totalCost)
+
+Rental::Rental(const string& rentalId, const string& username,
+               const string& vehicleId, const string& startDate,
+               const string& expectedEndDate, double totalCost)
     : rentalId(rentalId), username(username), vehicleId(vehicleId),
       startDate(startDate), expectedEndDate(expectedEndDate), actualEndDate(""),
       totalCost(totalCost), lateFee(0.0), isActive(true), isPaid(false) {}
 
-double Rental::calculateLateFee(const std::string& returnDate, double pricePerDay) const {
+double Rental::calculateLateFee(const string& returnDate, double pricePerDay) const {
     if (DateUtils::isDateAfter(returnDate, expectedEndDate)) {
         int daysLate = DateUtils::daysBetween(expectedEndDate, returnDate);
         return daysLate * pricePerDay * Config::getLateFeeRate();
@@ -20,19 +22,19 @@ double Rental::calculateLateFee(const std::string& returnDate, double pricePerDa
 }
 
 void Rental::display() const {
-    std::cout << "\n=== Rental ===" << std::endl;
-    std::cout << "ID: " << rentalId << std::endl;
-    std::cout << "Vehicle ID: " << vehicleId << std::endl;
-    std::cout << "Start Date: " << startDate << std::endl;
-    std::cout << "Expected End Date: " << expectedEndDate << std::endl;
+    cout << "\n=== Rental ===" << endl;
+    cout << "ID: " << rentalId << endl;
+    cout << "Vehicle ID: " << vehicleId << endl;
+    cout << "Start Date: " << startDate << endl;
+    cout << "Expected End Date: " << expectedEndDate << endl;
     if (!actualEndDate.empty()) {
-        std::cout << "Actual End Date: " << actualEndDate << std::endl;
+        cout << "Actual End Date: " << actualEndDate << endl;
     }
-    std::cout << "Total Cost: $" << std::fixed << std::setprecision(2) << totalCost << std::endl;
+    cout << "Total Cost: $" << fixed << setprecision(2) << totalCost << endl;
     if (lateFee > 0) {
-        std::cout << "Late Fee: $" << std::fixed << std::setprecision(2) << lateFee << std::endl;
+        cout << "Late Fee: $" << fixed << setprecision(2) << lateFee << endl;
     }
-    std::cout << "Status: " << (isActive ? "Active" : "Completed") << std::endl;
-    std::cout << "Paid: " << (isPaid ? "Yes" : "No") << std::endl;
-    std::cout << "=============\n" << std::endl;
+    cout << "Status: " << (isActive ? "Active" : "Completed") << endl;
+    cout << "Paid: " << (isPaid ? "Yes" : "No") << endl;
+    cout << "=============\n" << endl;
 }

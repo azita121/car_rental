@@ -1,13 +1,15 @@
 #include "Vehicle.h"
 #include <iostream>
 #include <iomanip>
+using namespace std;
 
-Vehicle::Vehicle(const std::string& id, const std::string& brand, const std::string& model,
+
+Vehicle::Vehicle(const string& id, const string& brand, const string& model,
                  int year, VehicleType type, double pricePerDay)
     : vehicleId(id), brand(brand), model(model), year(year), type(type),
       pricePerDay(pricePerDay), status(VehicleStatus::Available), currentRentalEndDate("") {}
 
-std::string Vehicle::getTypeString() const {
+string Vehicle::getTypeString() const {
     switch (type) {
         case VehicleType::Sedan: return "Sedan";
         case VehicleType::SUV: return "SUV";
@@ -18,7 +20,7 @@ std::string Vehicle::getTypeString() const {
     }
 }
 
-std::string Vehicle::getStatusString() const {
+string Vehicle::getStatusString() const {
     switch (status) {
         case VehicleStatus::Available: return "Available";
         case VehicleStatus::Reserved: return "Reserved";
@@ -29,16 +31,16 @@ std::string Vehicle::getStatusString() const {
 }
 
 void Vehicle::displayDetails() const {
-    std::cout << "\n=== Vehicle Details ===" << std::endl;
-    std::cout << "ID: " << vehicleId << std::endl;
-    std::cout << "Brand: " << brand << std::endl;
-    std::cout << "Model: " << model << std::endl;
-    std::cout << "Year: " << year << std::endl;
-    std::cout << "Type: " << getTypeString() << std::endl;
-    std::cout << "Price per Day: $" << std::fixed << std::setprecision(2) << pricePerDay << std::endl;
-    std::cout << "Status: " << getStatusString() << std::endl;
+    cout << "\n=== Vehicle Details ===" << endl;
+    cout << "ID: " << vehicleId << endl;
+    cout << "Brand: " << brand << endl;
+    cout << "Model: " << model << endl;
+    cout << "Year: " << year << endl;
+    cout << "Type: " << getTypeString() << endl;
+    cout << "Price per Day: $" << fixed << setprecision(2) << pricePerDay << endl;
+    cout << "Status: " << getStatusString() << endl;
     if (status == VehicleStatus::Rented && !currentRentalEndDate.empty()) {
-        std::cout << "Estimated Return Date: " << currentRentalEndDate << std::endl;
+        cout << "Estimated Return Date: " << currentRentalEndDate << endl;
     }
-    std::cout << "======================\n" << std::endl;
+    cout << "======================\n" << endl;
 }

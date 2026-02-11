@@ -1,6 +1,8 @@
 #include "System.h"
 #include <iostream>
 #include <iomanip>
+using namespace std;
+
 
 /*
  * User Creation Rules (Option A - Academic-friendly approach):
@@ -102,7 +104,7 @@ System::~System() {
 
 // -------- Helper methods --------
 
-Vehicle* System::findVehicle(const std::string& vehicleId) const {
+Vehicle* System::findVehicle(const string& vehicleId) const {
     for (auto it = const_cast<LinkedList<Vehicle*>&>(vehicles).begin();
          it != const_cast<LinkedList<Vehicle*>&>(vehicles).end(); ++it) {
         if ((*it)->getVehicleId() == vehicleId) return *it;
@@ -110,7 +112,7 @@ Vehicle* System::findVehicle(const std::string& vehicleId) const {
     return nullptr;
 }
 
-Reservation* System::findReservation(const std::string& reservationId) const {
+Reservation* System::findReservation(const string& reservationId) const {
     for (auto it = const_cast<LinkedList<Reservation*>&>(reservations).begin();
          it != const_cast<LinkedList<Reservation*>&>(reservations).end(); ++it) {
         if ((*it)->getReservationId() == reservationId) return *it;
@@ -118,7 +120,7 @@ Reservation* System::findReservation(const std::string& reservationId) const {
     return nullptr;
 }
 
-Rental* System::findRental(const std::string& rentalId) const {
+Rental* System::findRental(const string& rentalId) const {
     for (auto it = const_cast<LinkedList<Rental*>&>(rentals).begin();
          it != const_cast<LinkedList<Rental*>&>(rentals).end(); ++it) {
         if ((*it)->getRentalId() == rentalId) return *it;
@@ -126,27 +128,27 @@ Rental* System::findRental(const std::string& rentalId) const {
     return nullptr;
 }
 
-std::string System::generateReservationId() {
-    std::ostringstream oss;
+string System::generateReservationId() {
+    ostringstream oss;
     oss << "R" << nextReservationId++;
     return oss.str();
 }
 
-std::string System::generateRentalId() {
-    std::ostringstream oss;
+string System::generateRentalId() {
+    ostringstream oss;
     oss << "L" << nextRentalId++;
     return oss.str();
 }
 
-std::string System::generateMaintenanceRecordId() {
-    std::ostringstream oss;
+string System::generateMaintenanceRecordId() {
+    ostringstream oss;
     oss << "M" << nextMaintenanceRecordId++;
     return oss.str();
 }
 
-bool System::hasOverlappingReservation(const std::string& vehicleId,
-                                       const std::string& startDate,
-                                       const std::string& endDate) const {
+bool System::hasOverlappingReservation(const string& vehicleId,
+                                       const string& startDate,
+                                       const string& endDate) const {
     for (auto it = const_cast<LinkedList<Reservation*>&>(reservations).begin();
          it != const_cast<LinkedList<Reservation*>&>(reservations).end(); ++it) {
         Reservation* r = *it;
@@ -162,16 +164,16 @@ bool System::hasOverlappingReservation(const std::string& vehicleId,
     return false;
 }
 
-bool System::hasOverlappingRental(const std::string& vehicleId,
-                                  const std::string& startDate,
-                                  const std::string& endDate) const {
+bool System::hasOverlappingRental(const string& vehicleId,
+                                  const string& startDate,
+                                  const string& endDate) const {
     for (auto it = const_cast<LinkedList<Rental*>&>(rentals).begin();
          it != const_cast<LinkedList<Rental*>&>(rentals).end(); ++it) {
         Rental* r = *it;
         if (!r->getIsActive()) continue;
         if (r->getVehicleId() != vehicleId) continue;
 
-        std::string existingEnd = r->getExpectedEndDate();
+        string existingEnd = r->getExpectedEndDate();
         bool noOverlap =
             DateUtils::isDateBefore(endDate, r->getStartDate()) ||
             DateUtils::isDateAfter(startDate, existingEnd);
@@ -180,9 +182,9 @@ bool System::hasOverlappingRental(const std::string& vehicleId,
     return false;
 }
 
-bool System::isVehicleAvailable(const std::string& vehicleId,
-                                const std::string& startDate,
-                                const std::string& endDate) const {
+bool System::isVehicleAvailable(const string& vehicleId,
+                                const string& startDate,
+                                const string& endDate) const {
     Vehicle* v = findVehicle(vehicleId);
     if (!v) return false;
     if (v->getStatus() == VehicleStatus::Maintenance) return false;
@@ -192,13 +194,13 @@ bool System::isVehicleAvailable(const std::string& vehicleId,
     return true;
 }
 
-void System::processReservationQueue(const std::string& vehicleId) {
+void System::processReservationQueue(const string& vehicleId) {
     PriorityQueue<Reservation*, ReservationPtrCompare>* queuePtr =
         reservationQueues.find(vehicleId);
     if (!queuePtr) return;
 
     auto& queue = *queuePtr;
-    std::string today = DateUtils::getCurrentDate();
+    string today = DateUtils::getCurrentDate();
 
     while (!queue.empty()) {
         Reservation* r = queue.top();
@@ -229,112 +231,112 @@ void System::processReservationQueue(const std::string& vehicleId) {
 // - Customers can be registered via registerUser() by anyone (guest or logged-in user)
 // - Staff and Manager accounts can ONLY be created via importData() or hardcoded bootstrap
 //   This ensures proper access control and prevents unauthorized privilege escalation
-bool System::registerUser(const std::string& username,
-                          const std::string& password,
-                          const std::string& fullName,
-                          const std::string& email,
+bool System::registerUser(const string& username,
+                          const string& password,
+                          const string& fullName,
+                          const string& email,
                           UserType type) {
     // Authorization: Only Customer registration is allowed via this method
     // Staff and Manager must be created via importData() or bootstrap
     if (type != UserType::Customer) {
-        std::cout << "Only Customer accounts can be registered via this method.\n";
-        std::cout << "Staff and Manager accounts must be created via data import.\n";
+        cout << "Only Customer accounts can be registered via this method.\n";
+        cout << "Staff and Manager accounts must be created via data import.\n";
         return false;
     }
 
     if (userMap.contains(username)) {
-        std::cout << "Username already exists.\n";
+        cout << "Username already exists.\n";
         return false;
     }
 
     User* u = new Customer(username, password, fullName, email);
     users.append(u);
     userMap.insert(username, u);
-    std::cout << "Customer registered successfully.\n";
+    cout << "Customer registered successfully.\n";
     return true;
 }
 
-User* System::login(const std::string& username, const std::string& password) {
+User* System::login(const string& username, const string& password) {
     User** uptr = userMap.find(username);
     if (!uptr) {
-        std::cout << "User not found.\n";
+        cout << "User not found.\n";
         return nullptr;
     }
     User* u = *uptr;
     if (u->getIsBlocked()) {
-        std::cout << "User is blocked.\n";
+        cout << "User is blocked.\n";
         return nullptr;
     }
     if (!u->verifyPassword(password)) {
-        std::cout << "Invalid password.\n";
+        cout << "Invalid password.\n";
         return nullptr;
     }
     currentUser = u;
-    std::cout << "Login successful. Welcome, " << u->getFullName() << "!\n";
+    cout << "Login successful. Welcome, " << u->getFullName() << "!\n";
     return u;
 }
 
 void System::logout() {
     currentUser = nullptr;
-    std::cout << "Logged out.\n";
+    cout << "Logged out.\n";
 }
 
 // -------- Vehicle Management --------
 
-bool System::addVehicle(const std::string& vehicleId,
-                        const std::string& brand,
-                        const std::string& model,
+bool System::addVehicle(const string& vehicleId,
+                        const string& brand,
+                        const string& model,
                         int year,
                         VehicleType type,
                         double pricePerDay) {
     // Authorization: Only Staff can add vehicles to the fleet
     if (!currentUser || currentUser->getType() != UserType::Staff) {
-        std::cout << "Only staff can add vehicles to the fleet.\n";
+        cout << "Only staff can add vehicles to the fleet.\n";
         return false;
     }
 
     if (findVehicle(vehicleId)) {
-        std::cout << "Vehicle ID already exists.\n";
+        cout << "Vehicle ID already exists.\n";
         return false;
     }
     if (year <= 0) {
-        std::cout << "Invalid year.\n";
+        cout << "Invalid year.\n";
         return false;
     }
     if (pricePerDay <= 0) {
-        std::cout << "Price per day must be positive.\n";
+        cout << "Price per day must be positive.\n";
         return false;
     }
     Vehicle* v = new Vehicle(vehicleId, brand, model, year, type, pricePerDay);
     vehicles.append(v);
-    std::cout << "Vehicle added.\n";
+    cout << "Vehicle added.\n";
     return true;
 }
 
-bool System::editVehicle(const std::string& vehicleId,
-                         const std::string& brand,
-                         const std::string& model,
+bool System::editVehicle(const string& vehicleId,
+                         const string& brand,
+                         const string& model,
                          int year,
                          VehicleType type,
                          double pricePerDay) {
     // Authorization: Only Staff can edit vehicles
     if (!currentUser || currentUser->getType() != UserType::Staff) {
-        std::cout << "Only staff can edit vehicles.\n";
+        cout << "Only staff can edit vehicles.\n";
         return false;
     }
 
     Vehicle* v = findVehicle(vehicleId);
     if (!v) {
-        std::cout << "Vehicle not found.\n";
+        cout << "Vehicle not found.\n";
         return false;
     }
 
     if (year <= 0) {
-        std::cout << "Invalid year.\n";
+        cout << "Invalid year.\n";
         return false;
     }
     if (pricePerDay <= 0) {
-        std::cout << "Price per day must be positive.\n";
+        cout << "Price per day must be positive.\n";
         return false;
     }
 
@@ -344,7 +346,7 @@ bool System::editVehicle(const std::string& vehicleId,
     v->setType(type);
     v->setPricePerDay(pricePerDay);
 
-    std::cout << "Vehicle updated.\n";
+    cout << "Vehicle updated.\n";
     return true;
 }
 
@@ -355,7 +357,7 @@ void System::displayAllVehicles() const {
     }
 }
 
-void System::displayVehiclesByFilter(const std::string& brand,
+void System::displayVehiclesByFilter(const string& brand,
                                      VehicleType type) const {
     for (auto it = const_cast<LinkedList<Vehicle*>&>(vehicles).begin();
          it != const_cast<LinkedList<Vehicle*>&>(vehicles).end(); ++it) {
@@ -366,10 +368,10 @@ void System::displayVehiclesByFilter(const std::string& brand,
     }
 }
 
-void System::displayVehicleDetails(const std::string& vehicleId) const {
+void System::displayVehicleDetails(const string& vehicleId) const {
     Vehicle* v = findVehicle(vehicleId);
     if (!v) {
-        std::cout << "Vehicle not found.\n";
+        cout << "Vehicle not found.\n";
         return;
     }
     v->displayDetails();
@@ -377,43 +379,43 @@ void System::displayVehicleDetails(const std::string& vehicleId) const {
 
 // -------- Reservation Management --------
 
-bool System::createReservation(const std::string& vehicleId,
-                               const std::string& startDate,
-                               const std::string& endDate) {
+bool System::createReservation(const string& vehicleId,
+                               const string& startDate,
+                               const string& endDate) {
     if (!currentUser || currentUser->getType() != UserType::Customer) {
-        std::cout << "Only logged-in customers can create reservations.\n";
+        cout << "Only logged-in customers can create reservations.\n";
         return false;
     }
     if (currentUser->getIsBlocked()) {
-        std::cout << "You are blocked due to unpaid debt.\n";
+        cout << "You are blocked due to unpaid debt.\n";
         return false;
     }
 
     if (!DateUtils::isValidDate(startDate) || !DateUtils::isValidDate(endDate)) {
-        std::cout << "Invalid date format. Use YYYY-MM-DD.\n";
+        cout << "Invalid date format. Use YYYY-MM-DD.\n";
         return false;
     }
     // Check if startDate is after endDate (invalid)
     // daysBetween(d1, d2) > 0  → d2 is after d1
     // So isDateAfter(endDate, startDate) is true exactly when startDate > endDate
     if (DateUtils::isDateAfter(endDate, startDate)) {
-        std::cout << "Start date must be before or equal to end date.\n";
+        cout << "Start date must be before or equal to end date.\n";
         return false;
     }
 
     int duration = DateUtils::daysBetween(startDate, endDate) + 1;
     if (duration < Config::MIN_RENTAL_DAYS ||
         duration > Config::MAX_RENTAL_DAYS) {
-        std::cout << "Reservation duration out of allowed range.\n";
+        cout << "Reservation duration out of allowed range.\n";
         return false;
     }
 
     if (!isVehicleAvailable(vehicleId, startDate, endDate)) {
-        std::cout << "Vehicle not available for the selected dates.\n";
+        cout << "Vehicle not available for the selected dates.\n";
         return false;
     }
 
-    std::string resId = generateReservationId();
+    string resId = generateReservationId();
     Reservation* r = new Reservation(resId, currentUser->getUsername(),
                                      vehicleId, startDate, endDate);
     reservations.append(r);
@@ -433,13 +435,13 @@ bool System::createReservation(const std::string& vehicleId,
         v->setStatus(VehicleStatus::Reserved);
     }
 
-    std::cout << "Reservation created with ID: " << resId << "\n";
+    cout << "Reservation created with ID: " << resId << "\n";
     return true;
 }
 
 void System::displayUserReservations() const {
     if (!currentUser) {
-        std::cout << "No user logged in.\n";
+        cout << "No user logged in.\n";
         return;
     }
     for (auto it = const_cast<LinkedList<Reservation*>&>(reservations).begin();
@@ -450,37 +452,37 @@ void System::displayUserReservations() const {
     }
 }
 
-bool System::extendRental(const std::string& rentalId,
-                          const std::string& newEndDate) {
+bool System::extendRental(const string& rentalId,
+                          const string& newEndDate) {
     if (!currentUser) {
-        std::cout << "Login required.\n";
+        cout << "Login required.\n";
         return false;
     }
     Rental* r = findRental(rentalId);
     if (!r) {
-        std::cout << "Rental not found.\n";
+        cout << "Rental not found.\n";
         return false;
     }
     if (r->getUsername() != currentUser->getUsername()) {
-        std::cout << "You can only extend your own rentals.\n";
+        cout << "You can only extend your own rentals.\n";
         return false;
     }
 
     if (!DateUtils::isValidDate(newEndDate)) {
-        std::cout << "Invalid date format. Use YYYY-MM-DD.\n";
+        cout << "Invalid date format. Use YYYY-MM-DD.\n";
         return false;
     }
 
-    std::string vehicleId = r->getVehicleId();
-    std::string oldEnd = r->getExpectedEndDate();
+    string vehicleId = r->getVehicleId();
+    string oldEnd = r->getExpectedEndDate();
 
     if (DateUtils::isDateBefore(newEndDate, oldEnd)) {
-        std::cout << "New end date cannot be before current end date.\n";
+        cout << "New end date cannot be before current end date.\n";
         return false;
     }
 
     if (!isVehicleAvailable(vehicleId, oldEnd, newEndDate)) {
-        std::cout << "Cannot extend rental due to future reservations.\n";
+        cout << "Cannot extend rental due to future reservations.\n";
         return false;
     }
 
@@ -493,33 +495,33 @@ bool System::extendRental(const std::string& rentalId,
     // We are extending the planned end date, not returning the car yet
     r->setExpectedEndDate(newEndDate);
 
-    std::cout << "Rental extended. Additional cost: " << extraCost << "\n";
+    cout << "Rental extended. Additional cost: " << extraCost << "\n";
     return true;
 }
 
 // -------- Rental Management --------
 
-bool System::convertReservationToRental(const std::string& reservationId) {
+bool System::convertReservationToRental(const string& reservationId) {
     if (!currentUser || currentUser->getType() != UserType::Staff) {
-        std::cout << "Only staff can convert reservations.\n";
+        cout << "Only staff can convert reservations.\n";
         return false;
     }
     Reservation* r = findReservation(reservationId);
     if (!r || !r->getIsActive()) {
-        std::cout << "Reservation not found or inactive.\n";
+        cout << "Reservation not found or inactive.\n";
         return false;
     }
 
     Vehicle* v = findVehicle(r->getVehicleId());
     if (!v) {
-        std::cout << "Vehicle not found.\n";
+        cout << "Vehicle not found.\n";
         return false;
     }
 
     int days = DateUtils::daysBetween(r->getStartDate(), r->getEndDate()) + 1;
     double totalCost = days * v->getPricePerDay();
 
-    std::string rentalId = generateRentalId();
+    string rentalId = generateRentalId();
     Rental* rental = new Rental(rentalId, r->getUsername(), r->getVehicleId(),
                                 r->getStartDate(), r->getEndDate(), totalCost);
     rentals.append(rental);
@@ -533,30 +535,30 @@ bool System::convertReservationToRental(const std::string& reservationId) {
         (*uPtr)->addToBalance(totalCost);
     }
 
-    std::cout << "Reservation converted to rental. Rental ID: " << rentalId << "\n";
+    cout << "Reservation converted to rental. Rental ID: " << rentalId << "\n";
     return true;
 }
 
-bool System::returnVehicle(const std::string& rentalId,
-                           const std::string& returnDate) {
+bool System::returnVehicle(const string& rentalId,
+                           const string& returnDate) {
     if (!currentUser || currentUser->getType() != UserType::Staff) {
-        std::cout << "Only staff can process returns.\n";
+        cout << "Only staff can process returns.\n";
         return false;
     }
     if (!DateUtils::isValidDate(returnDate)) {
-        std::cout << "Invalid date format. Use YYYY-MM-DD.\n";
+        cout << "Invalid date format. Use YYYY-MM-DD.\n";
         return false;
     }
 
     Rental* r = findRental(rentalId);
     if (!r || !r->getIsActive()) {
-        std::cout << "Rental not found or already completed.\n";
+        cout << "Rental not found or already completed.\n";
         return false;
     }
 
     Vehicle* v = findVehicle(r->getVehicleId());
     if (!v) {
-        std::cout << "Vehicle not found.\n";
+        cout << "Vehicle not found.\n";
         return false;
     }
 
@@ -578,13 +580,13 @@ bool System::returnVehicle(const std::string& rentalId,
 
     processReservationQueue(v->getVehicleId());
 
-    std::cout << "Vehicle returned. Late fee: " << fee << "\n";
+    cout << "Vehicle returned. Late fee: " << fee << "\n";
     return true;
 }
 
 void System::displayUserRentals() const {
     if (!currentUser) {
-        std::cout << "Login required.\n";
+        cout << "Login required.\n";
         return;
     }
     for (auto it = const_cast<LinkedList<Rental*>&>(rentals).begin();
@@ -599,11 +601,11 @@ void System::displayUserRentals() const {
 
 bool System::makePayment(double amount) {
     if (!currentUser) {
-        std::cout << "Login required.\n";
+        cout << "Login required.\n";
         return false;
     }
     if (amount <= 0) {
-        std::cout << "Amount must be positive.\n";
+        cout << "Amount must be positive.\n";
         return false;
     }
 
@@ -614,18 +616,18 @@ bool System::makePayment(double amount) {
     if (currentUser->getOutstandingBalance() < Config::getBlockThreshold()) {
         currentUser->setIsBlocked(false);
     }
-    std::cout << "Payment successful. Remaining balance: "
+    cout << "Payment successful. Remaining balance: "
               << currentUser->getOutstandingBalance() << "\n";
     return true;
 }
 
 void System::showPaymentSummaryForCurrentUser() const {
     if (!currentUser) {
-        std::cout << "Login required.\n";
+        cout << "Login required.\n";
         return;
     }
     if (currentUser->getType() != UserType::Customer) {
-        std::cout << "Only customers can view payment summaries.\n";
+        cout << "Only customers can view payment summaries.\n";
         return;
     }
 
@@ -633,7 +635,7 @@ void System::showPaymentSummaryForCurrentUser() const {
     double sumLate = 0.0;
     bool anyRental = false;
 
-    std::cout << "\n=== Payment Summary for " << currentUser->getUsername() << " ===\n";
+    cout << "\n=== Payment Summary for " << currentUser->getUsername() << " ===\n";
 
     for (auto it = const_cast<LinkedList<Rental*>&>(rentals).begin();
          it != const_cast<LinkedList<Rental*>&>(rentals).end(); ++it) {
@@ -646,29 +648,29 @@ void System::showPaymentSummaryForCurrentUser() const {
         sumBase += base;
         sumLate += late;
 
-        std::cout << "Rental ID: " << r->getRentalId()
+        cout << "Rental ID: " << r->getRentalId()
                   << ", Vehicle: " << r->getVehicleId()
                   << ", Period: " << r->getStartDate() << " to " << r->getExpectedEndDate()
-                  << ", Base: $" << std::fixed << std::setprecision(2) << base
-                  << ", Late fee: $" << std::fixed << std::setprecision(2) << late
+                  << ", Base: $" << fixed << setprecision(2) << base
+                  << ", Late fee: $" << fixed << setprecision(2) << late
                   << ", Status: " << (r->getIsActive() ? "Active" : "Completed")
                   << ", Paid: " << (r->getIsPaid() ? "Yes" : "No")
                   << "\n";
     }
 
     if (!anyRental) {
-        std::cout << "No rentals found for this user.\n";
+        cout << "No rentals found for this user.\n";
     }
 
     double rentalsTotal = sumBase + sumLate;
     double outstanding = currentUser->getOutstandingBalance();
 
-    std::cout << "\nTotals (all rentals):\n";
-    std::cout << "  Base rental amount: $" << std::fixed << std::setprecision(2) << sumBase << "\n";
-    std::cout << "  Late fees:          $" << std::fixed << std::setprecision(2) << sumLate << "\n";
-    std::cout << "  Rentals total:      $" << std::fixed << std::setprecision(2) << rentalsTotal << "\n";
-    std::cout << "\nCurrent outstanding debt (amount you still owe): $"
-              << std::fixed << std::setprecision(2) << outstanding << "\n";
+    cout << "\nTotals (all rentals):\n";
+    cout << "  Base rental amount: $" << fixed << setprecision(2) << sumBase << "\n";
+    cout << "  Late fees:          $" << fixed << setprecision(2) << sumLate << "\n";
+    cout << "  Rentals total:      $" << fixed << setprecision(2) << rentalsTotal << "\n";
+    cout << "\nCurrent outstanding debt (amount you still owe): $"
+              << fixed << setprecision(2) << outstanding << "\n";
 }
 
 // -------- Staff / Maintenance --------
@@ -676,40 +678,40 @@ void System::showPaymentSummaryForCurrentUser() const {
 void System::processReservationQueues() {
     // Authorization: Only Staff can manually trigger reservation queue processing
     if (!currentUser || currentUser->getType() != UserType::Staff) {
-        std::cout << "Only staff can process reservation queues.\n";
+        cout << "Only staff can process reservation queues.\n";
         return;
     }
 
     for (auto it = vehicles.begin(); it != vehicles.end(); ++it) {
         processReservationQueue((*it)->getVehicleId());
     }
-    std::cout << "Reservation queues processed.\n";
+    cout << "Reservation queues processed.\n";
 }
 
-void System::viewReservationQueue(const std::string& vehicleId) {
+void System::viewReservationQueue(const string& vehicleId) {
     // Authorization: Only Staff can view reservation queues
     if (!currentUser || currentUser->getType() != UserType::Staff) {
-        std::cout << "Only staff can view reservation queues.\n";
+        cout << "Only staff can view reservation queues.\n";
         return;
     }
 
     PriorityQueue<Reservation*, ReservationPtrCompare>* qPtr =
         reservationQueues.find(vehicleId);
     if (!qPtr) {
-        std::cout << "No reservation queue for vehicle " << vehicleId << ".\n";
+        cout << "No reservation queue for vehicle " << vehicleId << ".\n";
         return;
     }
 
     auto queueCopy = *qPtr; // copy so we don't disturb the real queue
     bool any = false;
 
-    std::cout << "\nReservation queue for vehicle " << vehicleId << ":\n";
+    cout << "\nReservation queue for vehicle " << vehicleId << ":\n";
     while (!queueCopy.empty()) {
         Reservation* r = queueCopy.top();
         queueCopy.pop();
         if (!r->getIsActive()) continue;
         any = true;
-        std::cout << "  ID: " << r->getReservationId()
+        cout << "  ID: " << r->getReservationId()
                   << ", User: " << r->getUsername()
                   << ", " << r->getStartDate() << " to " << r->getEndDate()
                   << ", Reserved on: " << r->getReservationDate()
@@ -718,47 +720,47 @@ void System::viewReservationQueue(const std::string& vehicleId) {
     }
 
     if (!any) {
-        std::cout << "Reservation queue is empty for this vehicle.\n";
+        cout << "Reservation queue is empty for this vehicle.\n";
     }
 }
 
-void System::addMaintenanceRecord(const std::string& vehicleId,
-                                  const std::string& description,
+void System::addMaintenanceRecord(const string& vehicleId,
+                                  const string& description,
                                   double cost) {
     if (!currentUser || currentUser->getType() != UserType::Maintenance) {
-        std::cout << "Only maintenance staff can add maintenance records.\n";
+        cout << "Only maintenance staff can add maintenance records.\n";
         return;
     }
     Vehicle* v = findVehicle(vehicleId);
     if (!v) {
-        std::cout << "Vehicle not found.\n";
+        cout << "Vehicle not found.\n";
         return;
     }
 
-    std::string recordId = generateMaintenanceRecordId();
-    std::string date = DateUtils::getCurrentDate();
+    string recordId = generateMaintenanceRecordId();
+    string date = DateUtils::getCurrentDate();
     MaintenanceRecord* mr =
         new MaintenanceRecord(recordId, vehicleId, date, description, cost);
     maintenanceRecords.append(mr);
     v->setStatus(VehicleStatus::Maintenance);
 
-    std::cout << "Maintenance record added.\n";
+    cout << "Maintenance record added.\n";
 }
 
-void System::setVehicleMaintenance(const std::string& vehicleId,
+void System::setVehicleMaintenance(const string& vehicleId,
                                    bool inMaintenance) {
     if (!currentUser || currentUser->getType() != UserType::Maintenance) {
-        std::cout << "Only maintenance staff can change maintenance status.\n";
+        cout << "Only maintenance staff can change maintenance status.\n";
         return;
     }
     Vehicle* v = findVehicle(vehicleId);
     if (!v) {
-        std::cout << "Vehicle not found.\n";
+        cout << "Vehicle not found.\n";
         return;
     }
     v->setStatus(inMaintenance ? VehicleStatus::Maintenance
                                : VehicleStatus::Available);
-    std::cout << "Vehicle maintenance status updated.\n";
+    cout << "Vehicle maintenance status updated.\n";
 }
 
 // -------- Manager operations --------
@@ -766,7 +768,7 @@ void System::setVehicleMaintenance(const std::string& vehicleId,
 void System::generateRevenueReport() const {
     // Authorization: Only Manager can generate revenue reports
     if (!currentUser || currentUser->getType() != UserType::Manager) {
-        std::cout << "Only managers can generate revenue reports.\n";
+        cout << "Only managers can generate revenue reports.\n";
         return;
     }
     double totalIncome = 0.0;
@@ -796,16 +798,16 @@ void System::generateRevenueReport() const {
         if ((*it)->getIsBlocked()) blockedUsers++;
     }
 
-    std::cout << "\n=== Revenue & Performance Report ===\n";
-    std::cout << "Total income: " << totalIncome << "\n";
-    std::cout << "Total rentals: " << totalRentals << "\n";
-    std::cout << "Total late fees: " << totalLateFees << "\n";
-    std::cout << "Fleet size: " << totalVehicles << "\n";
-    std::cout << "Currently rented: " << rentedCount
+    cout << "\n=== Revenue & Performance Report ===\n";
+    cout << "Total income: " << totalIncome << "\n";
+    cout << "Total rentals: " << totalRentals << "\n";
+    cout << "Total late fees: " << totalLateFees << "\n";
+    cout << "Fleet size: " << totalVehicles << "\n";
+    cout << "Currently rented: " << rentedCount
               << " (" << utilizationRate << "%)\n";
-    std::cout << "Blocked users: " << blockedUsers << "\n";
+    cout << "Blocked users: " << blockedUsers << "\n";
 
-    std::cout << "\nPer-vehicle rental counts:\n";
+    cout << "\nPer-vehicle rental counts:\n";
     for (auto it = const_cast<LinkedList<Vehicle*>&>(vehicles).begin();
          it != const_cast<LinkedList<Vehicle*>&>(vehicles).end(); ++it) {
         Vehicle* v = *it;
@@ -814,21 +816,21 @@ void System::generateRevenueReport() const {
              rit != const_cast<LinkedList<Rental*>&>(rentals).end(); ++rit) {
             if ((*rit)->getVehicleId() == v->getVehicleId()) count++;
         }
-        std::cout << "  " << v->getVehicleId() << " (" << v->getBrand() << " " << v->getModel()
+        cout << "  " << v->getVehicleId() << " (" << v->getBrand() << " " << v->getModel()
                   << "): " << count << " rentals\n";
     }
 }
 
-bool System::exportRevenueReportCSV(const std::string& filename) const {
+bool System::exportRevenueReportCSV(const string& filename) const {
     // Authorization: Only Manager can export revenue reports
     if (!currentUser || currentUser->getType() != UserType::Manager) {
-        std::cout << "Only managers can export revenue reports.\n";
+        cout << "Only managers can export revenue reports.\n";
         return false;
     }
 
-    std::ofstream out(filename.c_str());
+    ofstream out(filename.c_str());
     if (!out) {
-        std::cout << "Failed to open file for writing.\n";
+        cout << "Failed to open file for writing.\n";
         return false;
     }
 
@@ -868,46 +870,46 @@ bool System::exportRevenueReportCSV(const std::string& filename) const {
             << v->getModel() << "," << count << "\n";
     }
 
-    std::cout << "Revenue report exported to " << filename << "\n";
+    cout << "Revenue report exported to " << filename << "\n";
     return true;
 }
 
-void System::blockUser(const std::string& username) {
+void System::blockUser(const string& username) {
     // Authorization: Only Manager can block users
     if (!currentUser || currentUser->getType() != UserType::Manager) {
-        std::cout << "Only managers can block users.\n";
+        cout << "Only managers can block users.\n";
         return;
     }
 
     User** uptr = userMap.find(username);
     if (!uptr) {
-        std::cout << "User not found.\n";
+        cout << "User not found.\n";
         return;
     }
     (*uptr)->setIsBlocked(true);
-    std::cout << "User blocked.\n";
+    cout << "User blocked.\n";
 }
 
-void System::unblockUser(const std::string& username) {
+void System::unblockUser(const string& username) {
     // Authorization: Only Manager can unblock users
     if (!currentUser || currentUser->getType() != UserType::Manager) {
-        std::cout << "Only managers can unblock users.\n";
+        cout << "Only managers can unblock users.\n";
         return;
     }
 
     User** uptr = userMap.find(username);
     if (!uptr) {
-        std::cout << "User not found.\n";
+        cout << "User not found.\n";
         return;
     }
     (*uptr)->setIsBlocked(false);
-    std::cout << "User unblocked.\n";
+    cout << "User unblocked.\n";
 }
 
 // -------- Backup & Restore (very simple CSV-like format) --------
 
-bool System::exportData(const std::string& filename) const {
-    std::ofstream out(filename.c_str());
+bool System::exportData(const string& filename) const {
+    ofstream out(filename.c_str());
     if (!out) return false;
 
     out << "[USERS]\n";
@@ -966,16 +968,16 @@ bool System::exportData(const std::string& filename) const {
     }
 
     out << "[END]\n";
-    std::cout << "Data exported successfully to " << filename << "\n";
+    cout << "Data exported successfully to " << filename << "\n";
     return true;
 }
 
-bool System::importData(const std::string& filename) {
+bool System::importData(const string& filename) {
     // This method is the ONLY way to create Staff and Manager users
     // (along with hardcoded bootstrap if implemented)
     // Customer users can also be restored via this method
     
-    std::ifstream in(filename.c_str());
+    ifstream in(filename.c_str());
     if (!in) {
         // File doesn't exist yet - this is normal on first run
         return false;
@@ -984,10 +986,10 @@ bool System::importData(const std::string& filename) {
     // Clean up any existing in-memory state to avoid leaks when importing
     clearAllData();
 
-    std::string line;
+    string line;
     enum Section { NONE, USERS, VEHICLES, RESERVATIONS, RENTALS, MAINT } section = NONE;
 
-    while (std::getline(in, line)) {
+    while (getline(in, line)) {
         if (line == "[USERS]") {
             section = USERS;
             continue;
@@ -1011,21 +1013,21 @@ bool System::importData(const std::string& filename) {
         if (line == "[END]") break;
         if (line.empty()) continue;
 
-        std::istringstream iss(line);
-        std::string field;
+        istringstream iss(line);
+        string field;
 
         if (section == USERS) {
-            std::string username, hash, fullName, email;
+            string username, hash, fullName, email;
             int typeInt, blockedInt;
             double balance;
 
-            std::getline(iss, username, ',');
-            std::getline(iss, hash, ',');
-            std::getline(iss, fullName, ',');
-            std::getline(iss, email, ',');
-            std::getline(iss, field, ','); typeInt = std::stoi(field);
-            std::getline(iss, field, ','); balance = std::stod(field);
-            std::getline(iss, field, ','); blockedInt = std::stoi(field);
+            getline(iss, username, ',');
+            getline(iss, hash, ',');
+            getline(iss, fullName, ',');
+            getline(iss, email, ',');
+            getline(iss, field, ','); typeInt = stoi(field);
+            getline(iss, field, ','); balance = stod(field);
+            getline(iss, field, ','); blockedInt = stoi(field);
 
             UserType type = static_cast<UserType>(typeInt);
             User* u = nullptr;
@@ -1054,18 +1056,18 @@ bool System::importData(const std::string& filename) {
             users.append(u);
             userMap.insert(username, u); // Rebuild AVL tree for fast lookup
         } else if (section == VEHICLES) {
-            std::string id, brand, model, typeStr, priceStr, statusStr, yearStr, endDate;
+            string id, brand, model, typeStr, priceStr, statusStr, yearStr, endDate;
             int typeInt, statusInt, year;
             double price;
 
-            std::getline(iss, id, ',');
-            std::getline(iss, brand, ',');
-            std::getline(iss, model, ',');
-            std::getline(iss, yearStr, ','); year = std::stoi(yearStr);
-            std::getline(iss, typeStr, ','); typeInt = std::stoi(typeStr);
-            std::getline(iss, priceStr, ','); price = std::stod(priceStr);
-            std::getline(iss, statusStr, ','); statusInt = std::stoi(statusStr);
-            std::getline(iss, endDate, ',');
+            getline(iss, id, ',');
+            getline(iss, brand, ',');
+            getline(iss, model, ',');
+            getline(iss, yearStr, ','); year = stoi(yearStr);
+            getline(iss, typeStr, ','); typeInt = stoi(typeStr);
+            getline(iss, priceStr, ','); price = stod(priceStr);
+            getline(iss, statusStr, ','); statusInt = stoi(statusStr);
+            getline(iss, endDate, ',');
 
             Vehicle* v = new Vehicle(id, brand, model, year,
                                      static_cast<VehicleType>(typeInt),
@@ -1074,17 +1076,17 @@ bool System::importData(const std::string& filename) {
             v->setCurrentRentalEndDate(endDate);
             vehicles.append(v);
         } else if (section == RESERVATIONS) {
-            std::string id, username, vehicleId, start, end, resDate;
+            string id, username, vehicleId, start, end, resDate;
             int activeInt, claimedInt;
 
-            std::getline(iss, id, ',');
-            std::getline(iss, username, ',');
-            std::getline(iss, vehicleId, ',');
-            std::getline(iss, start, ',');
-            std::getline(iss, end, ',');
-            std::getline(iss, resDate, ',');
-            std::getline(iss, field, ','); activeInt = std::stoi(field);
-            std::getline(iss, field, ','); claimedInt = std::stoi(field);
+            getline(iss, id, ',');
+            getline(iss, username, ',');
+            getline(iss, vehicleId, ',');
+            getline(iss, start, ',');
+            getline(iss, end, ',');
+            getline(iss, resDate, ',');
+            getline(iss, field, ','); activeInt = stoi(field);
+            getline(iss, field, ','); claimedInt = stoi(field);
 
             Reservation* r = new Reservation(id, username, vehicleId, start, end);
             // Restore original reservation date and flags so claim-window logic
@@ -1106,21 +1108,21 @@ bool System::importData(const std::string& filename) {
                 }
             }
         } else if (section == RENTALS) {
-            std::string id, username, vehicleId, start, expectedEnd, actualEnd;
-            std::string totalStr, lateStr;
+            string id, username, vehicleId, start, expectedEnd, actualEnd;
+            string totalStr, lateStr;
             int activeInt, paidInt;
             double total, late;
 
-            std::getline(iss, id, ',');
-            std::getline(iss, username, ',');
-            std::getline(iss, vehicleId, ',');
-            std::getline(iss, start, ',');
-            std::getline(iss, expectedEnd, ',');
-            std::getline(iss, actualEnd, ',');
-            std::getline(iss, totalStr, ','); total = std::stod(totalStr);
-            std::getline(iss, lateStr, ','); late = std::stod(lateStr);
-            std::getline(iss, field, ','); activeInt = std::stoi(field);
-            std::getline(iss, field, ','); paidInt = std::stoi(field);
+            getline(iss, id, ',');
+            getline(iss, username, ',');
+            getline(iss, vehicleId, ',');
+            getline(iss, start, ',');
+            getline(iss, expectedEnd, ',');
+            getline(iss, actualEnd, ',');
+            getline(iss, totalStr, ','); total = stod(totalStr);
+            getline(iss, lateStr, ','); late = stod(lateStr);
+            getline(iss, field, ','); activeInt = stoi(field);
+            getline(iss, field, ','); paidInt = stoi(field);
 
             Rental* r = new Rental(id, username, vehicleId, start, expectedEnd, total);
             r->setActualEndDate(actualEnd);
@@ -1129,14 +1131,14 @@ bool System::importData(const std::string& filename) {
             r->setIsPaid(paidInt != 0);
             rentals.append(r);
         } else if (section == MAINT) {
-            std::string id, vehicleId, date, desc, costStr;
+            string id, vehicleId, date, desc, costStr;
             double cost;
 
-            std::getline(iss, id, ',');
-            std::getline(iss, vehicleId, ',');
-            std::getline(iss, date, ',');
-            std::getline(iss, desc, ',');
-            std::getline(iss, costStr, ','); cost = std::stod(costStr);
+            getline(iss, id, ',');
+            getline(iss, vehicleId, ',');
+            getline(iss, date, ',');
+            getline(iss, desc, ',');
+            getline(iss, costStr, ','); cost = stod(costStr);
 
             MaintenanceRecord* m = new MaintenanceRecord(id, vehicleId, date, desc, cost);
             maintenanceRecords.append(m);
@@ -1146,23 +1148,23 @@ bool System::importData(const std::string& filename) {
     // Rebuild ID counters based on maximum existing IDs
     int maxResId = 0, maxRentalId = 0, maxMaintId = 0;
     for (auto it = reservations.begin(); it != reservations.end(); ++it) {
-        const std::string& id = (*it)->getReservationId();
+        const string& id = (*it)->getReservationId();
         if (id.size() > 1) {
-            int n = std::atoi(id.c_str() + 1);
+            int n = atoi(id.c_str() + 1);
             if (n > maxResId) maxResId = n;
         }
     }
     for (auto it = rentals.begin(); it != rentals.end(); ++it) {
-        const std::string& id = (*it)->getRentalId();
+        const string& id = (*it)->getRentalId();
         if (id.size() > 1) {
-            int n = std::atoi(id.c_str() + 1);
+            int n = atoi(id.c_str() + 1);
             if (n > maxRentalId) maxRentalId = n;
         }
     }
     for (auto it = maintenanceRecords.begin(); it != maintenanceRecords.end(); ++it) {
-        const std::string& id = (*it)->getRecordId();
+        const string& id = (*it)->getRecordId();
         if (id.size() > 1) {
-            int n = std::atoi(id.c_str() + 1);
+            int n = atoi(id.c_str() + 1);
             if (n > maxMaintId) maxMaintId = n;
         }
     }
@@ -1170,7 +1172,7 @@ bool System::importData(const std::string& filename) {
     nextRentalId = maxRentalId + 1;
     nextMaintenanceRecordId = maxMaintId + 1;
 
-    std::cout << "Data imported successfully. Users, vehicles, reservations, rentals, and maintenance records restored.\n";
+    cout << "Data imported successfully. Users, vehicles, reservations, rentals, and maintenance records restored.\n";
     return true;
 }
 

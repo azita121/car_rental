@@ -1,21 +1,23 @@
 #include "User.h"
 #include "Utils.h"
 #include <iostream>
+using namespace std;
 
-User::User(const std::string& username, const std::string& password,
-           const std::string& fullName, const std::string& email, UserType type)
+
+User::User(const string& username, const string& password,
+           const string& fullName, const string& email, UserType type)
     : username(username), passwordHash(PasswordHasher::hash(password)),
       fullName(fullName), email(email), type(type), isBlocked(false), outstandingBalance(0.0) {}
 
-void User::setPassword(const std::string& password) {
+void User::setPassword(const string& password) {
     passwordHash = PasswordHasher::hash(password);
 }
 
-bool User::verifyPassword(const std::string& password) const {
+bool User::verifyPassword(const string& password) const {
     return PasswordHasher::verify(password, passwordHash);
 }
 
-std::string User::getTypeString() const {
+string User::getTypeString() const {
     switch (type) {
         case UserType::Guest: return "Guest";
         case UserType::Customer: return "Customer";
@@ -27,28 +29,28 @@ std::string User::getTypeString() const {
 }
 
 void User::displayInfo() const {
-    std::cout << "\n=== User Info ===" << std::endl;
-    std::cout << "Username: " << username << std::endl;
-    std::cout << "Full Name: " << fullName << std::endl;
-    std::cout << "Email: " << email << std::endl;
-    std::cout << "Type: " << getTypeString() << std::endl;
-    std::cout << "Blocked: " << (isBlocked ? "Yes" : "No") << std::endl;
-    std::cout << "Outstanding Balance: $" << outstandingBalance << std::endl;
-    std::cout << "================\n" << std::endl;
+    cout << "\n=== User Info ===" << endl;
+    cout << "Username: " << username << endl;
+    cout << "Full Name: " << fullName << endl;
+    cout << "Email: " << email << endl;
+    cout << "Type: " << getTypeString() << endl;
+    cout << "Blocked: " << (isBlocked ? "Yes" : "No") << endl;
+    cout << "Outstanding Balance: $" << outstandingBalance << endl;
+    cout << "================\n" << endl;
 }
 
-Customer::Customer(const std::string& username, const std::string& password,
-                   const std::string& fullName, const std::string& email)
+Customer::Customer(const string& username, const string& password,
+                   const string& fullName, const string& email)
     : User(username, password, fullName, email, UserType::Customer) {}
 
-Staff::Staff(const std::string& username, const std::string& password,
-             const std::string& fullName, const std::string& email)
+Staff::Staff(const string& username, const string& password,
+             const string& fullName, const string& email)
     : User(username, password, fullName, email, UserType::Staff) {}
 
-Maintenance::Maintenance(const std::string& username, const std::string& password,
-                         const std::string& fullName, const std::string& email)
+Maintenance::Maintenance(const string& username, const string& password,
+                         const string& fullName, const string& email)
     : User(username, password, fullName, email, UserType::Maintenance) {}
 
-Manager::Manager(const std::string& username, const std::string& password,
-                 const std::string& fullName, const std::string& email)
+Manager::Manager(const string& username, const string& password,
+                 const string& fullName, const string& email)
     : User(username, password, fullName, email, UserType::Manager) {}

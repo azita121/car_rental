@@ -2,24 +2,26 @@
 #define MAINTENANCE_RECORD_H
 
 #include <string>
+using namespace std;
+
 
 class MaintenanceRecord {
 private:
-    std::string recordId;
-    std::string vehicleId;
-    std::string date;
-    std::string description;
+    string recordId;
+    string vehicleId;
+    string date;
+    string description;
     double cost;
     
 public:
-    MaintenanceRecord(const std::string& recordId, const std::string& vehicleId,
-                      const std::string& date, const std::string& description, double cost);
+    MaintenanceRecord(const string& recordId, const string& vehicleId,
+                      const string& date, const string& description, double cost);
     
     // Getters
-    std::string getRecordId() const { return recordId; }
-    std::string getVehicleId() const { return vehicleId; }
-    std::string getDate() const { return date; }
-    std::string getDescription() const { return description; }
+    string getRecordId() const { return recordId; }
+    string getVehicleId() const { return vehicleId; }
+    string getDate() const { return date; }
+    string getDescription() const { return description; }
     double getCost() const { return cost; }
     
     void display() const;

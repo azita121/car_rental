@@ -3,6 +3,8 @@
 
 #include <string>
 #include "DataStructures.h"
+using namespace std;
+
 
 enum class VehicleStatus {
     Available,
@@ -21,41 +23,41 @@ enum class VehicleType {
 
 class Vehicle {
 private:
-    std::string vehicleId;
-    std::string brand;
-    std::string model;
+    string vehicleId;
+    string brand;
+    string model;
     int year;
     VehicleType type;
     double pricePerDay;
     VehicleStatus status;
-    std::string currentRentalEndDate; // If rented, when it should be returned
+    string currentRentalEndDate; // If rented, when it should be returned
     
 public:
-    Vehicle(const std::string& id, const std::string& brand, const std::string& model,
+    Vehicle(const string& id, const string& brand, const string& model,
             int year, VehicleType type, double pricePerDay);
     
     // Getters
-    std::string getVehicleId() const { return vehicleId; }
-    std::string getBrand() const { return brand; }
-    std::string getModel() const { return model; }
+    string getVehicleId() const { return vehicleId; }
+    string getBrand() const { return brand; }
+    string getModel() const { return model; }
     int getYear() const { return year; }
     VehicleType getType() const { return type; }
     double getPricePerDay() const { return pricePerDay; }
     VehicleStatus getStatus() const { return status; }
-    std::string getCurrentRentalEndDate() const { return currentRentalEndDate; }
+    string getCurrentRentalEndDate() const { return currentRentalEndDate; }
     
     // Setters
-    void setBrand(const std::string& b) { brand = b; }
-    void setModel(const std::string& m) { model = m; }
+    void setBrand(const string& b) { brand = b; }
+    void setModel(const string& m) { model = m; }
     void setYear(int y) { year = y; }
     void setType(VehicleType t) { type = t; }
     void setPricePerDay(double p) { pricePerDay = p; }
     void setStatus(VehicleStatus s) { status = s; }
-    void setCurrentRentalEndDate(const std::string& date) { currentRentalEndDate = date; }
+    void setCurrentRentalEndDate(const string& date) { currentRentalEndDate = date; }
     
     // Utility
-    std::string getTypeString() const;
-    std::string getStatusString() const;
+    string getTypeString() const;
+    string getStatusString() const;
     void displayDetails() const;
 };
 

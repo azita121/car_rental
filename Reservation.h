@@ -2,30 +2,32 @@
 #define RESERVATION_H
 
 #include <string>
+using namespace std;
+
 
 class Reservation {
 private:
-    std::string reservationId;
-    std::string username;
-    std::string vehicleId;
-    std::string startDate;
-    std::string endDate;
-    std::string reservationDate;
+    string reservationId;
+    string username;
+    string vehicleId;
+    string startDate;
+    string endDate;
+    string reservationDate;
     bool isActive;
     bool isClaimed;
     
 public:
-    Reservation(const std::string& resId, const std::string& username,
-                const std::string& vehicleId, const std::string& startDate,
-                const std::string& endDate);
+    Reservation(const string& resId, const string& username,
+                const string& vehicleId, const string& startDate,
+                const string& endDate);
     
     // Getters
-    std::string getReservationId() const { return reservationId; }
-    std::string getUsername() const { return username; }
-    std::string getVehicleId() const { return vehicleId; }
-    std::string getStartDate() const { return startDate; }
-    std::string getEndDate() const { return endDate; }
-    std::string getReservationDate() const { return reservationDate; }
+    string getReservationId() const { return reservationId; }
+    string getUsername() const { return username; }
+    string getVehicleId() const { return vehicleId; }
+    string getStartDate() const { return startDate; }
+    string getEndDate() const { return endDate; }
+    string getReservationDate() const { return reservationDate; }
     bool getIsActive() const { return isActive; }
     bool getIsClaimed() const { return isClaimed; }
     
@@ -33,7 +35,7 @@ public:
     void setIsActive(bool active) { isActive = active; }
     void setIsClaimed(bool claimed) { isClaimed = claimed; }
     // Used during import to restore original reservation date from file
-    void restoreReservationDate(const std::string& date) { reservationDate = date; }
+    void restoreReservationDate(const string& date) { reservationDate = date; }
     
     // Comparison for priority queue (earliest start date first)
     bool operator<(const Reservation& other) const {
