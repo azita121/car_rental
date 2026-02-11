@@ -63,6 +63,7 @@ private:
     std::string generateRentalId();
     std::string generateMaintenanceRecordId();
     void processReservationQueue(const std::string& vehicleId);
+    void clearAllData();
     
 public:
     System();
@@ -81,6 +82,8 @@ public:
     // Vehicle Management
     bool addVehicle(const std::string& vehicleId, const std::string& brand,
                     const std::string& model, int year, VehicleType type, double pricePerDay);
+    bool editVehicle(const std::string& vehicleId, const std::string& brand,
+                     const std::string& model, int year, VehicleType type, double pricePerDay);
     void displayAllVehicles() const;
     void displayVehiclesByFilter(const std::string& brand, VehicleType type) const;
     void displayVehicleDetails(const std::string& vehicleId) const;

@@ -41,9 +41,10 @@ void showStaffMenu() {
     std::cout << "1. Convert Reservation to Rental\n";
     std::cout << "2. Return Vehicle\n";
     std::cout << "3. Add Vehicle\n";
-    std::cout << "4. Process Reservation Queues\n";
-    std::cout << "5. Export Data\n";
-    std::cout << "6. Logout\n";
+    std::cout << "4. Edit Vehicle\n";
+    std::cout << "5. Process Reservation Queues\n";
+    std::cout << "6. Export Data\n";
+    std::cout << "7. Logout\n";
     std::cout << "Choice: ";
 }
 
@@ -83,7 +84,7 @@ int readIntSafe() {
 // - Autosave happens to DATA_FILE after every mutating operation:
 //   * Successful customer registration
 //   * Successful reservation creation / rental extension / payment
-//   * Successful staff operations: convert reservation->rental, return vehicle, add vehicle, process queues
+//   * Successful staff operations: convert reservation->rental, return vehicle, add vehicle, edit vehicle, process queues
 //   * Maintenance operations: add maintenance record, change maintenance status
 //   * Manager operations: block/unblock users
 //   * Any logout and on program exit
@@ -213,12 +214,38 @@ int main() {
                         system.exportData(DATA_FILE);
                     }
                 } else if (c == 4) {
+                    std::string vid   = readLineNoComma("Vehicle ID to edit: ");
+                    std::string brand = readLineNoComma("New brand: ");
+                    std::string model = readLineNoComma("New model: ");
+                    int year;
+                    int typeInt;
+                    double price;
+                    std::cout << "New year: ";
+                    year = readIntSafe();
+                    std::cout << "New type (0=Sedan,1=SUV,2=Hatchback,3=Sports,4=Luxury): ";
+                    typeInt = readIntSafe();
+                    if (typeInt < 0 || typeInt > 4) {
+                        std::cout << "Invalid type selection.\n";
+                    } else {
+                        std::cout << "New price per day: ";
+                        while (!(std::cin >> price)) {
+                            std::cin.clear();
+                            std::cin.ignore(1024, '\n');
+                            std::cout << "Invalid price. Try again: ";
+                        }
+                        std::cin.ignore(1024, '\n');
+                        if (system.editVehicle(vid, brand, model, year,
+                                               static_cast<VehicleType>(typeInt), price)) {
+                            system.exportData(DATA_FILE);
+                        }
+                    }
+                } else if (c == 5) {
                     system.processReservationQueues();
                     system.exportData(DATA_FILE);
-                } else if (c == 5) {
+                } else if (c == 6) {
                     std::string fname = readLineNoComma("Filename: ");
                     system.exportData(fname);
-                } else if (c == 6) {
+                } else if (c == 7) {
                     system.logout();
                     // Auto-save after logout
                     system.exportData(DATA_FILE);

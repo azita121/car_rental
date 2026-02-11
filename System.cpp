@@ -38,6 +38,42 @@ System::System()
       nextRentalId(1),
       nextMaintenanceRecordId(1) {}
 
+void System::clearAllData() {
+    // Delete all dynamically allocated objects and clear containers
+    for (auto it = users.begin(); it != users.end(); ++it) {
+        delete *it;
+    }
+    users.clear();
+
+    for (auto it = vehicles.begin(); it != vehicles.end(); ++it) {
+        delete *it;
+    }
+    vehicles.clear();
+
+    for (auto it = reservations.begin(); it != reservations.end(); ++it) {
+        delete *it;
+    }
+    reservations.clear();
+
+    for (auto it = rentals.begin(); it != rentals.end(); ++it) {
+        delete *it;
+    }
+    rentals.clear();
+
+    for (auto it = maintenanceRecords.begin(); it != maintenanceRecords.end(); ++it) {
+        delete *it;
+    }
+    maintenanceRecords.clear();
+
+    userMap.clear();
+    reservationQueues.clear();
+
+    currentUser = nullptr;
+    nextReservationId = 1;
+    nextRentalId = 1;
+    nextMaintenanceRecordId = 1;
+}
+
 void System::ensureBootstrapUsers() {
     // If admin or staff usernames already exist, do nothing
     if (userMap.contains("admin") || userMap.contains("staff")) {
@@ -56,22 +92,7 @@ void System::ensureBootstrapUsers() {
 }
 
 System::~System() {
-    // Free all dynamically allocated objects
-    for (auto it = users.begin(); it != users.end(); ++it) {
-        delete *it;
-    }
-    for (auto it = vehicles.begin(); it != vehicles.end(); ++it) {
-        delete *it;
-    }
-    for (auto it = reservations.begin(); it != reservations.end(); ++it) {
-        delete *it;
-    }
-    for (auto it = rentals.begin(); it != rentals.end(); ++it) {
-        delete *it;
-    }
-    for (auto it = maintenanceRecords.begin(); it != maintenanceRecords.end(); ++it) {
-        delete *it;
-    }
+    clearAllData();
 }
 
 // -------- Helper methods --------
@@ -271,9 +292,54 @@ bool System::addVehicle(const std::string& vehicleId,
         std::cout << "Vehicle ID already exists.\n";
         return false;
     }
+    if (year <= 0) {
+        std::cout << "Invalid year.\n";
+        return false;
+    }
+    if (pricePerDay <= 0) {
+        std::cout << "Price per day must be positive.\n";
+        return false;
+    }
     Vehicle* v = new Vehicle(vehicleId, brand, model, year, type, pricePerDay);
     vehicles.append(v);
     std::cout << "Vehicle added.\n";
+    return true;
+}
+
+bool System::editVehicle(const std::string& vehicleId,
+                         const std::string& brand,
+                         const std::string& model,
+                         int year,
+                         VehicleType type,
+                         double pricePerDay) {
+    // Authorization: Only Staff can edit vehicles
+    if (!currentUser || currentUser->getType() != UserType::Staff) {
+        std::cout << "Only staff can edit vehicles.\n";
+        return false;
+    }
+
+    Vehicle* v = findVehicle(vehicleId);
+    if (!v) {
+        std::cout << "Vehicle not found.\n";
+        return false;
+    }
+
+    if (year <= 0) {
+        std::cout << "Invalid year.\n";
+        return false;
+    }
+    if (pricePerDay <= 0) {
+        std::cout << "Price per day must be positive.\n";
+        return false;
+    }
+
+    v->setBrand(brand);
+    v->setModel(model);
+    v->setYear(year);
+    v->setType(type);
+    v->setPricePerDay(pricePerDay);
+
+    std::cout << "Vehicle updated.\n";
     return true;
 }
 
@@ -822,13 +888,8 @@ bool System::importData(const std::string& filename) {
         return false;
     }
 
-    users.clear();
-    vehicles.clear();
-    reservations.clear();
-    rentals.clear();
-    maintenanceRecords.clear();
-    userMap.clear();
-    reservationQueues.clear();
+    // Clean up any existing in-memory state to avoid leaks when importing
+    clearAllData();
 
     std::string line;
     enum Section { NONE, USERS, VEHICLES, RESERVATIONS, RENTALS, MAINT } section = NONE;

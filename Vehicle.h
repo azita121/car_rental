@@ -45,6 +45,11 @@ public:
     std::string getCurrentRentalEndDate() const { return currentRentalEndDate; }
     
     // Setters
+    void setBrand(const std::string& b) { brand = b; }
+    void setModel(const std::string& m) { model = m; }
+    void setYear(int y) { year = y; }
+    void setType(VehicleType t) { type = t; }
+    void setPricePerDay(double p) { pricePerDay = p; }
     void setStatus(VehicleStatus s) { status = s; }
     void setCurrentRentalEndDate(const std::string& date) { currentRentalEndDate = date; }
     
