@@ -101,9 +101,11 @@ public:
     
     // Payment Management
     bool makePayment(double amount);
+    void showPaymentSummaryForCurrentUser() const;
     
     // Staff Operations
     void processReservationQueues();
+    void viewReservationQueue(const std::string& vehicleId);
     void addMaintenanceRecord(const std::string& vehicleId, const std::string& description, double cost);
     void setVehicleMaintenance(const std::string& vehicleId, bool inMaintenance);
     

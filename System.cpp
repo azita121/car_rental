@@ -1,5 +1,6 @@
 #include "System.h"
 #include <iostream>
+#include <iomanip>
 
 /*
  * User Creation Rules (Option A - Academic-friendly approach):
@@ -75,8 +76,8 @@ void System::clearAllData() {
 }
 
 void System::ensureBootstrapUsers() {
-    // If admin or staff usernames already exist, do nothing
-    if (userMap.contains("admin") || userMap.contains("staff")) {
+    // If admin, staff, or maintenance usernames already exist, do nothing
+    if (userMap.contains("admin") || userMap.contains("staff") || userMap.contains("maintenance")) {
         return;
     }
 
@@ -84,11 +85,15 @@ void System::ensureBootstrapUsers() {
                                           "Default Manager", "admin@example.com");
     Staff* defaultStaff = new Staff("staff", "staff",
                                     "Default Staff", "staff@example.com");
+    Maintenance* defaultMaintenance = new Maintenance("maintenance", "maintenance",
+                                                       "Default Maintenance", "maintenance@example.com");
 
     users.append(defaultManager);
     users.append(defaultStaff);
+    users.append(defaultMaintenance);
     userMap.insert(defaultManager->getUsername(), defaultManager);
     userMap.insert(defaultStaff->getUsername(), defaultStaff);
+    userMap.insert(defaultMaintenance->getUsername(), defaultMaintenance);
 }
 
 System::~System() {
@@ -614,6 +619,58 @@ bool System::makePayment(double amount) {
     return true;
 }
 
+void System::showPaymentSummaryForCurrentUser() const {
+    if (!currentUser) {
+        std::cout << "Login required.\n";
+        return;
+    }
+    if (currentUser->getType() != UserType::Customer) {
+        std::cout << "Only customers can view payment summaries.\n";
+        return;
+    }
+
+    double sumBase = 0.0;
+    double sumLate = 0.0;
+    bool anyRental = false;
+
+    std::cout << "\n=== Payment Summary for " << currentUser->getUsername() << " ===\n";
+
+    for (auto it = const_cast<LinkedList<Rental*>&>(rentals).begin();
+         it != const_cast<LinkedList<Rental*>&>(rentals).end(); ++it) {
+        Rental* r = *it;
+        if (r->getUsername() != currentUser->getUsername()) continue;
+        anyRental = true;
+
+        double base = r->getTotalCost();
+        double late = r->getLateFee();
+        sumBase += base;
+        sumLate += late;
+
+        std::cout << "Rental ID: " << r->getRentalId()
+                  << ", Vehicle: " << r->getVehicleId()
+                  << ", Period: " << r->getStartDate() << " to " << r->getExpectedEndDate()
+                  << ", Base: $" << std::fixed << std::setprecision(2) << base
+                  << ", Late fee: $" << std::fixed << std::setprecision(2) << late
+                  << ", Status: " << (r->getIsActive() ? "Active" : "Completed")
+                  << ", Paid: " << (r->getIsPaid() ? "Yes" : "No")
+                  << "\n";
+    }
+
+    if (!anyRental) {
+        std::cout << "No rentals found for this user.\n";
+    }
+
+    double rentalsTotal = sumBase + sumLate;
+    double outstanding = currentUser->getOutstandingBalance();
+
+    std::cout << "\nTotals (all rentals):\n";
+    std::cout << "  Base rental amount: $" << std::fixed << std::setprecision(2) << sumBase << "\n";
+    std::cout << "  Late fees:          $" << std::fixed << std::setprecision(2) << sumLate << "\n";
+    std::cout << "  Rentals total:      $" << std::fixed << std::setprecision(2) << rentalsTotal << "\n";
+    std::cout << "\nCurrent outstanding debt (amount you still owe): $"
+              << std::fixed << std::setprecision(2) << outstanding << "\n";
+}
+
 // -------- Staff / Maintenance --------
 
 void System::processReservationQueues() {
@@ -627,6 +684,42 @@ void System::processReservationQueues() {
         processReservationQueue((*it)->getVehicleId());
     }
     std::cout << "Reservation queues processed.\n";
+}
+
+void System::viewReservationQueue(const std::string& vehicleId) {
+    // Authorization: Only Staff can view reservation queues
+    if (!currentUser || currentUser->getType() != UserType::Staff) {
+        std::cout << "Only staff can view reservation queues.\n";
+        return;
+    }
+
+    PriorityQueue<Reservation*, ReservationPtrCompare>* qPtr =
+        reservationQueues.find(vehicleId);
+    if (!qPtr) {
+        std::cout << "No reservation queue for vehicle " << vehicleId << ".\n";
+        return;
+    }
+
+    auto queueCopy = *qPtr; // copy so we don't disturb the real queue
+    bool any = false;
+
+    std::cout << "\nReservation queue for vehicle " << vehicleId << ":\n";
+    while (!queueCopy.empty()) {
+        Reservation* r = queueCopy.top();
+        queueCopy.pop();
+        if (!r->getIsActive()) continue;
+        any = true;
+        std::cout << "  ID: " << r->getReservationId()
+                  << ", User: " << r->getUsername()
+                  << ", " << r->getStartDate() << " to " << r->getEndDate()
+                  << ", Reserved on: " << r->getReservationDate()
+                  << (r->getIsClaimed() ? " [CLAIMED]" : "")
+                  << "\n";
+    }
+
+    if (!any) {
+        std::cout << "Reservation queue is empty for this vehicle.\n";
+    }
 }
 
 void System::addMaintenanceRecord(const std::string& vehicleId,

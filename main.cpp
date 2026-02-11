@@ -42,9 +42,10 @@ void showStaffMenu() {
     std::cout << "2. Return Vehicle\n";
     std::cout << "3. Add Vehicle\n";
     std::cout << "4. Edit Vehicle\n";
-    std::cout << "5. Process Reservation Queues\n";
-    std::cout << "6. Export Data\n";
-    std::cout << "7. Logout\n";
+    std::cout << "5. View Reservation Queue\n";
+    std::cout << "6. Process Reservation Queues\n";
+    std::cout << "7. Export Data\n";
+    std::cout << "8. Logout\n";
     std::cout << "Choice: ";
 }
 
@@ -158,16 +159,33 @@ int main() {
                         system.exportData(DATA_FILE);
                     }
                 } else if (c == 7) {
-                    std::cout << "Amount: ";
-                    double amt;
-                    while (!(std::cin >> amt)) {
-                        std::cin.clear();
-                        std::cin.ignore(1024, '\n');
-                        std::cout << "Invalid amount. Try again: ";
-                    }
-                    std::cin.ignore(1024, '\n');
-                    if (system.makePayment(amt)) {
-                        system.exportData(DATA_FILE);
+                    system.showPaymentSummaryForCurrentUser();
+                    User* u = system.getCurrentUser();
+                    if (u) {
+                        double outstanding = u->getOutstandingBalance();
+                        if (outstanding <= 0.0) {
+                            std::cout << "You have no outstanding balance.\n";
+                        } else {
+                            char confirm;
+                            std::cout << "Proceed with payment? (y/n): ";
+                            std::cin >> confirm;
+                            std::cin.ignore(1024, '\n');
+                            if (confirm == 'y' || confirm == 'Y') {
+                                std::cout << "Amount to pay (max " << outstanding << "): ";
+                                double amt;
+                                while (!(std::cin >> amt)) {
+                                    std::cin.clear();
+                                    std::cin.ignore(1024, '\n');
+                                    std::cout << "Invalid amount. Try again: ";
+                                }
+                                std::cin.ignore(1024, '\n');
+                                if (system.makePayment(amt)) {
+                                    system.exportData(DATA_FILE);
+                                }
+                            } else {
+                                std::cout << "Payment cancelled.\n";
+                            }
+                        }
                     }
                 } else if (c == 8) {
                     std::string fname = readLineNoComma("Filename: ");
@@ -240,12 +258,15 @@ int main() {
                         }
                     }
                 } else if (c == 5) {
+                    std::string vid = readLineNoComma("Vehicle ID: ");
+                    system.viewReservationQueue(vid);
+                } else if (c == 6) {
                     system.processReservationQueues();
                     system.exportData(DATA_FILE);
-                } else if (c == 6) {
+                } else if (c == 7) {
                     std::string fname = readLineNoComma("Filename: ");
                     system.exportData(fname);
-                } else if (c == 7) {
+                } else if (c == 8) {
                     system.logout();
                     // Auto-save after logout
                     system.exportData(DATA_FILE);
